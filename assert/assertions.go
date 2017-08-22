@@ -769,6 +769,20 @@ func Condition(t TestingT, comp Comparison, msgAndArgs ...interface{}) bool {
 	return result
 }
 
+// ConditionTimeout uses a Comparison to wait a complex condition or failed by timeout.
+func ConditionWait(t TestingT, comp Comparison, timeout time.Duration, msgAndArgs ...interface{}) bool {
+	waitBegin := time.Now()
+	for {
+		if comp() {
+			return true
+		} else if time.Since(waitBegin) > timeout {
+			Fail(t, "Condition failed by timeout!", msgAndArgs...)
+			return false
+		}
+		time.Sleep(time.Millisecond)
+	}
+}
+
 // PanicTestFunc defines a func that should be passed to the assert.Panics and assert.NotPanics
 // methods, and represents a simple func that takes no arguments, and returns nothing.
 type PanicTestFunc func()
